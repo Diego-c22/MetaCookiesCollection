@@ -81,6 +81,10 @@ contract MetaCookies is ERC721AUpgradeable, OwnableUpgradeable {
                 ERC721AStorage.layout()._maxBatchSizePublicSale,
             "Transfer exceeds max amount."
         );
+        require(
+            maxSupply() >= (totalSupply() + quantity),
+            "ERC721A: Amount of tokens exceeds max supply."
+        );
         uint256 amount = quantity * ERC721AStorage.layout()._pricePublicSale;
         require(msg.value == amount, "Price not covered.");
         _mint(msg.sender, quantity);
