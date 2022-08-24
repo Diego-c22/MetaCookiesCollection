@@ -237,23 +237,6 @@ contract MetaCookies is ERC721AUpgradeable, OwnableUpgradeable {
         ERC721AStorage.layout()._reveled = status;
     }
 
-    /**
-     * @notice Called with the sale price to determine how much royalty
-     *          is owed and to whom.
-     * @param _tokenId - the NFT asset queried for royalty information
-     * @param _salePrice - the sale price of the NFT asset specified by _tokenId
-     * @return receiver - address of who should be sent the royalty payment
-     * @return royaltyAmount - the royalty payment amount for _salePrice
-     */
-    function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
-        external
-        view
-        returns (address receiver, uint256 royaltyAmount)
-    {
-        uint256 amount = ((_salePrice * 10) / 100);
-        return (owner(), amount);
-    }
-
     function getTokensOfAddress(address address_)
         external
         view
@@ -294,8 +277,24 @@ contract MetaCookies is ERC721AUpgradeable, OwnableUpgradeable {
         return ERC721AStorage.layout()._baseUri;
     }
 
-    function maxSupply() external view returns (uint256) {
+    // Change function to get max supply
+    function maxSupply() public view returns (uint256) {
         return (ERC721AStorage.layout()._amountForPublicSale +
-            ERC721AStorage.layout()._amountForPreSale);
+            ERC721AStorage.layout()._amountForFreeSale);
+    }
+
+    function airdrop(address[] memory _addresses, uint256 _amountPerWallet)
+        external
+        onlyOwner
+    {
+        uint256 amountTokens = (totalSupply() +
+            (_addresses.length * _amountPerWallet));
+        require(
+            amountTokens <= maxSupply(),
+            "ERC721A: Amount of tokens exceeds max supply."
+        );
+        for (uint256 i; i < _addresses.length; i++) {
+            _mint(_addresses[i], _amountPerWallet);
+        }
     }
 }
